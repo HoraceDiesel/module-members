@@ -1,17 +1,21 @@
 import { Component } from 'react'
-import { Member } from './Member'
+import  Member  from './Member'
 import fetch from 'isomorphic-fetch'
 
-export class MemberList extends Component {
+class MemberList extends Component {
     constructor(props) {
         super(props)
         this.state = {
             members: [],
-            loading: false
+            loading: false,
+            administrators: []
         }
+        this.makeAdmin = this.makeAdmin.bind(this)
+        this.removeAdmin = this.removeAdmin.bind(this)
     }
 
     componentDidMount() {
+
     	this.setState({laoding: true})
     	fetch('https://api.randomuser.me/?nat=US&results=12')
     		.then(response => response.json())
@@ -21,6 +25,22 @@ export class MemberList extends Component {
     			loading: false
     		})
     	)
+    }
+
+    makeAdmin(email) {
+    	const administrators = [
+    		...this.state.administrators,
+    		email
+    	]
+    	this.setState({administrators})
+    	console.log(administrators)
+    }
+
+    removeAdmin(email) {
+    	const administrators = this.state.administrators.filter(
+    		adminEmail => adminEmail !== email
+    	)
+    	this.setState({administrators})
     }
 
     render() {
@@ -43,6 +63,11 @@ export class MemberList extends Component {
             				name={member.name.first + ' ' + member.name.last}
             				email={member.email}
             				thumbnail={member.picture.thumbnail}
+            				admin={this.state.administrators.some(
+            					adminEmail => adminEmail === member.email
+            				)}
+            				makeAdmin={this.makeAdmin}
+            				removeAdmin={this.removeAdmin}
 			            	/>
 	            	)) :
 	            	<span>Currently 0 member</span>
@@ -52,4 +77,4 @@ export class MemberList extends Component {
    }     
 }
 
-// export default MemberList
+export default MemberList
